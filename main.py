@@ -38,11 +38,14 @@ ITEMS = [
 row = 0
 
 def addToCart(item):
+    if cart[item.name] == 5:
+        return
     cart[item.name] += 1
-    print(cart)
     updateVariables()
 
 def removeFromCart(item):
+    if cart[item.name] == 0:
+        return
     cart[item.name] -= 1
     updateVariables()
 
@@ -54,16 +57,20 @@ class button:
         if column == 2 or width == 2:
             row += 1
 
-class image:
-    def __init__(self, path, text, column = 1):
+class itemDisplay:
+    def __init__(self, item, column = 1, flat = False):
         global row
-        self.image = ctk.CTkImage(Image.open(path), size=(100, 100))
+        self.image = ctk.CTkImage(Image.open(item.image), size=(100, 100))
         self.label = ctk.CTkLabel(app, image=self.image, text="")
         self.label.grid(column=column, row=row)
-        row += 1
-        self.label = ctk.CTkLabel(app, text=text)
-        self.label.grid(column=column, row=row)
-        row += 1
+        if not flat:
+            row += 1
+        self.label = ctk.CTkLabel(app, text=item.name)
+        self.label.grid(column=(column+1 if flat else column), row=row)
+        self.label = ctk.CTkLabel(app, text=f"${item.price:.2f}")
+        self.label.grid(column=(column+2 if flat else column+1), row=row)
+        if not flat:
+            row += 1
 
 class reactiveLabel:
     def __init__(self, variable, column = 1):
@@ -72,16 +79,43 @@ class reactiveLabel:
         self.label = ctk.CTkLabel(app, textvariable=variable)
         self.label.grid(column=column, row=row)
 
+class label:
+    def __init__(self, text, column = 1):
+        global row
+        self.label = ctk.CTkLabel(app, text=text)
+        self.label.grid(column=column, row=row)
+
 class itemWidget:
     def __init__(self, item, index, itemColumns):
         global row
 
         column = 3*(index % itemColumns)
 
-        image(item.image, item.name, column = column+1)
-        button("-", lambda: removeFromCart(item), column = column)
+        itemDisplay(item, column = column+1)
+        decreaseButton = button("-", lambda: removeFromCart(item), column = column)
+        decreaseButton.button.configure(state="disabled")
+        decreaseButton.button.configure(fg_color="grey")
         reactiveLabel(cartText[index], column = column + 1)
-        button("+", lambda: addToCart(item), column = column + 2)
+        increaseButton = button("+", lambda: addToCart(item), column = column + 2)
+
+        originalColor = increaseButton.button.cget("fg_color")
+
+        def updateButtonState():
+            value = cartText[index].get()
+            if int(value) == 0:
+                decreaseButton.button.configure(state="disabled")
+                decreaseButton.button.configure(fg_color="grey")
+            elif int(value) == 5:
+                increaseButton.button.configure(state="disabled")
+                increaseButton.button.configure(fg_color="grey")
+            else:
+                increaseButton.button.configure(state="normal")
+                increaseButton.button.configure(fg_color=originalColor)
+
+                decreaseButton.button.configure(state="normal")
+                decreaseButton.button.configure(fg_color=originalColor)
+
+        cartText[index].trace_add("write", lambda *args: updateButtonState())
 
         if index % itemColumns == 0:
             row -= 3
@@ -89,7 +123,6 @@ class itemWidget:
         else:
             row += 1
             pass
-        
 
 def clearPage():
     for widget in app.winfo_children():
@@ -109,7 +142,33 @@ def orderPage():
 
     row += 3
 
-    button("Cart", lambda: print(cart), width = 2, column = 2)
+    checkout = button("Checkout", lambda: checkoutPage(), width = 2, column = 2)
+    checkout.button.configure(state="disabled")
+    checkout.button.configure(fg_color="grey")
+
+    def updateCheckoutButtonState():
+        for item in cart:
+            if cart[item] > 0:
+                checkout.button.configure(state="normal")
+                checkout.button.configure(fg_color="green")
+                break
+            else:
+                checkout.button.configure(state="disabled")
+                checkout.button.configure(fg_color="grey")
+
+    for i in range(len(cartText)):
+        cartText[i].trace_add("write", lambda *args: updateCheckoutButtonState())
+
+def checkoutPage():
+    global row
+    row = 0
+    clearPage()
+    
+    for item in cart:
+        if cart[item] > 0:
+            itemDisplay(ITEMS[ITEMS.index(item)], column = 0, flat = True)
+            label(cartText[ITEMS.index(item)], column = 4)
+
 
 orderPage()
 
