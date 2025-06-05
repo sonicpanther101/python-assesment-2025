@@ -16,6 +16,15 @@ cart = {
     "soft drink": 0
 }
 
+cartText = [""] * len(cart)
+
+def updateVariables():
+    cartText[0] = "x" + str(cart["hamburger"])
+    cartText[1] = "x" + str(cart["cheeseburger"])
+    cartText[2] = "x" + str(cart["veggie wrap"])
+    cartText[3] = "x" + str(cart["french fries"])
+    cartText[4] = "x" + str(cart["soft drink"])
+    
 global ITEMS
 ITEMS = [
     item("hamburger", 5, "hamburger.jpg"),
@@ -29,9 +38,11 @@ row = 0
 
 def addToCart(item):
     cart.item += 1
+    updateVariables()
 
 def removeFromCart(item):
     cart.item -= 1
+    updateVariables()
 
 app = ctk.CTk()
 app.geometry("900x600")
@@ -41,7 +52,7 @@ class button:
     def __init__(self, text, command, width = 1, column = 0):
         global row
         self.button = ctk.CTkButton(app, text=text, command=command)
-        self.button.grid(column=column, row=row, columnspan=width)
+        self.button.grid(column=column, row=row, columnspan=width, sticky="nsew")
         if column == 2 or width == 2:
             row += 1
 
@@ -57,9 +68,10 @@ class image:
         row += 1
 
 class reactiveLabel:
-    def __init__(self, text, column = 1):
+    def __init__(self, variable, column = 1):
         global row
-        self.label = ctk.CTkLabel(app, text=text)
+        self.variable = variable
+        self.label = ctk.CTkLabel(app, textvariable=variable)
         self.label.grid(column=column, row=row)
 
 class itemWidget:
@@ -68,11 +80,9 @@ class itemWidget:
 
         column = 3*(index % itemColumns)
 
-        print(index % itemColumns, item.name)
-
         image(item.image, item.name, column = column+1)
         button("-", lambda: removeFromCart(item), column = column)
-        reactiveLabel("x" + str(cart[item.name]), column = column + 1)
+        reactiveLabel(cartText[index], column = column + 1)
         button("+", lambda: addToCart(item), column = column + 2)
 
         if index % itemColumns == 0:
@@ -92,6 +102,7 @@ def orderPage():
     app.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
 
     clearPage()
+    updateVariables()
 
     row = 0
 
@@ -100,7 +111,7 @@ def orderPage():
 
     row += 3
 
-    button("Cart", lambda: print(cart), width = 3)
+    button("Cart", lambda: print(cart), width = 2, column = 2)
 
 orderPage()
 
