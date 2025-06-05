@@ -1,6 +1,10 @@
 import customtkinter as ctk
 from PIL import Image
 
+app = ctk.CTk()
+app.geometry("900x600")
+app.title("Reseraunt App")
+
 class item:
     def __init__(self, name, price, image):
         self.name = name
@@ -16,14 +20,11 @@ cart = {
     "soft drink": 0
 }
 
-cartText = [""] * len(cart)
+cartText = [ctk.StringVar(value="0") for _ in range(len(cart))]
 
 def updateVariables():
-    cartText[0] = "x" + str(cart["hamburger"])
-    cartText[1] = "x" + str(cart["cheeseburger"])
-    cartText[2] = "x" + str(cart["veggie wrap"])
-    cartText[3] = "x" + str(cart["french fries"])
-    cartText[4] = "x" + str(cart["soft drink"])
+    for i, item in enumerate(cart):
+        cartText[i].set(str(cart[item]))
     
 global ITEMS
 ITEMS = [
@@ -37,16 +38,13 @@ ITEMS = [
 row = 0
 
 def addToCart(item):
-    cart.item += 1
+    cart[item.name] += 1
+    print(cart)
     updateVariables()
 
 def removeFromCart(item):
-    cart.item -= 1
+    cart[item.name] -= 1
     updateVariables()
-
-app = ctk.CTk()
-app.geometry("900x600")
-app.title("Reseraunt App")
 
 class button:
     def __init__(self, text, command, width = 1, column = 0):
