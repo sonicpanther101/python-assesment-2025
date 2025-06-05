@@ -8,7 +8,13 @@ class item:
         self.image = "images/" + image
 
 global cart
-cart = []
+cart = {
+    "hamburger": 0,
+    "cheeseburger": 0,
+    "veggie wrap": 0,
+    "french fries": 0,
+    "soft drink": 0
+}
 
 global ITEMS
 ITEMS = [
@@ -19,50 +25,83 @@ ITEMS = [
     item("soft drink", 1.5, "soft drink.jpg"),
 ]
 
+row = 0
+
 def addToCart(item):
-    cart.append(item)
+    cart.item += 1
 
 def removeFromCart(item):
-    cart.remove(item)
+    cart.item -= 1
 
 app = ctk.CTk()
 app.geometry("900x600")
 app.title("Reseraunt App")
 
 class button:
-    def __init__(self, text, command, width):
+    def __init__(self, text, command, width = 1, column = 0):
+        global row
         self.button = ctk.CTkButton(app, text=text, command=command)
-        self.button.pack()
+        self.button.grid(column=column, row=row, columnspan=width)
+        if column == 2 or width == 2:
+            row += 1
 
 class image:
-    def __init__(self, path, text):
+    def __init__(self, path, text, column = 1):
+        global row
         self.image = ctk.CTkImage(Image.open(path), size=(100, 100))
-        self.label = ctk.CTkLabel(app, image=self.image, text="", columnspan=2)
-        self.label.pack()
+        self.label = ctk.CTkLabel(app, image=self.image, text="")
+        self.label.grid(column=column, row=row)
+        row += 1
         self.label = ctk.CTkLabel(app, text=text)
-        self.label.pack()
+        self.label.grid(column=column, row=row)
+        row += 1
 
-# Hamburger
-image(ITEMS[0].image, ITEMS[0].name)
-button("+", lambda: addToCart(ITEMS[0]), 1)
-button("-", lambda: removeFromCart(ITEMS[0]), 1)
+class reactiveLabel:
+    def __init__(self, text, column = 1):
+        global row
+        self.label = ctk.CTkLabel(app, text=text)
+        self.label.grid(column=column, row=row)
 
-# Cheeseburger
-button("+", lambda: addToCart(ITEMS[1]), 1)
-button("-", lambda: removeFromCart(ITEMS[1]), 1)
+class itemWidget:
+    def __init__(self, item, index, itemColumns):
+        global row
 
-# Veggie Wrap
-button("+", lambda: addToCart(ITEMS[2]), 1)
-button("-", lambda: removeFromCart(ITEMS[2]), 1)
+        column = 3*(index % itemColumns)
 
-# French Fries
-button("+", lambda: addToCart(ITEMS[3]), 1)
-button("-", lambda: removeFromCart(ITEMS[3]), 1)
+        print(index % itemColumns, item.name)
 
-# Soft Drink
-button("+", lambda: addToCart(ITEMS[4]), 1)
-button("-", lambda: removeFromCart(ITEMS[4]), 1)
+        image(item.image, item.name, column = column+1)
+        button("-", lambda: removeFromCart(item), column = column)
+        reactiveLabel("x" + str(cart[item.name]), column = column + 1)
+        button("+", lambda: addToCart(item), column = column + 2)
 
-button("Cart", lambda: print(cart))
+        if index % itemColumns == 0:
+            row -= 3
+            pass
+        else:
+            row += 1
+            pass
+        
+
+def clearPage():
+    for widget in app.winfo_children():
+        widget.destroy()
+
+def orderPage():
+    global row
+    app.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+
+    clearPage()
+
+    row = 0
+
+    for item in ITEMS:
+        itemWidget(item, ITEMS.index(item), 2)
+
+    row += 3
+
+    button("Cart", lambda: print(cart), width = 3)
+
+orderPage()
 
 app.mainloop()
