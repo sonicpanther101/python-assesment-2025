@@ -91,21 +91,6 @@ class label:
         self.label = ctk.CTkLabel(app, text=text)
         self.label.grid(column=column, row=row, columnspan=width)
 
-def updateButtonState():
-    value = cartText[index].get()
-    if int(value) == 0:
-        decreaseButton.button.configure(state="disabled")
-        decreaseButton.button.configure(fg_color="grey")
-    elif int(value) == 5:
-        increaseButton.button.configure(state="disabled")
-        increaseButton.button.configure(fg_color="grey")
-    else:
-        increaseButton.button.configure(state="normal")
-        increaseButton.button.configure(fg_color=originalColor)
-
-        decreaseButton.button.configure(state="normal")
-        decreaseButton.button.configure(fg_color=originalColor)
-
 class itemWidget:
     def __init__(self, item, index, itemColumns):
         global row
@@ -119,6 +104,21 @@ class itemWidget:
 
         originalColor = increaseButton.button.cget("fg_color")
 
+        def updateButtonState():
+            value = cartText[index].get()
+            if int(value) == 0:
+                decreaseButton.button.configure(state="disabled")
+                decreaseButton.button.configure(fg_color="grey")
+            elif int(value) == 5:
+                increaseButton.button.configure(state="disabled")
+                increaseButton.button.configure(fg_color="grey")
+            else:
+                increaseButton.button.configure(state="normal")
+                increaseButton.button.configure(fg_color=originalColor)
+
+                decreaseButton.button.configure(state="normal")
+                decreaseButton.button.configure(fg_color=originalColor)
+
         cartText[index].trace_add("write", lambda *args: updateButtonState())
 
         if index % itemColumns == 0:
@@ -128,22 +128,10 @@ class itemWidget:
             row += 1
             pass
 
-def updateCheckoutButtonState():
-    for item in cart:
-        if cart[item] > 0:
-            checkout.button.configure(state="normal")
-            checkout.button.configure(fg_color="green")
-            break
-        else:
-            checkout.button.configure(state="disabled")
-            checkout.button.configure(fg_color="grey")
-
 def clearPage():
-    for i in range(len(cartText)):
-        for trace_info in cartText[0].trace_info():
-            cartText[i].trace_remove(*trace_info)
-        cartText[i].trace_remove("write", updateButtonState)
-        cartText[i].trace_remove("write", updateCheckoutButtonState)
+    global cartText
+    cartText = [ctk.StringVar(value="0") for _ in range(len(cart))]
+    updateVariables()
     for widget in app.winfo_children():
         widget.destroy()
 
@@ -166,6 +154,16 @@ def orderPage():
 
     checkout = button("Checkout", lambda: checkoutPage(), width = 2, column = 2)
 
+    def updateCheckoutButtonState():
+        for item in cart:
+            if cart[item] > 0:
+                checkout.button.configure(state="normal")
+                checkout.button.configure(fg_color="green")
+                break
+            else:
+                checkout.button.configure(state="disabled")
+                checkout.button.configure(fg_color="grey")
+
     for i in range(len(cartText)):
         cartText[i].trace_add("write", lambda *args: updateCheckoutButtonState())
     updateVariables()
@@ -183,6 +181,7 @@ def checkoutPage():
     label("Item", column = 1)
     label("Price", column = 2)
     label("Quantity", column = 3)
+    label("Totals", column = 4)
 
     row += 1
     
@@ -190,6 +189,8 @@ def checkoutPage():
         if cart[item] > 0:
             itemDisplay(ITEMS[ITEMS_INDEX[item]], column = 0, flat = True)
             reactiveLabel(cartText[ITEMS_INDEX[item]], column = 3)
+            # quantity times price
+            label(f"${cart[item] * ITEMS[ITEMS_INDEX[item]].price:.2f}", column = 4)
 
             row += 1
     
@@ -200,14 +201,14 @@ def checkoutPage():
     total = subtotal + tax
 
 
-    label("Subtotal", column = 1)
-    label(f"${subtotal:.2f}", column = 2)
+    label("Subtotal", column = 3)
+    label(f"${subtotal:.2f}", column = 4)
     row += 1
-    label("Tax", column = 1)
-    label(f"${tax:.2f}", column = 2)
+    label("Tax", column = 3)
+    label(f"${tax:.2f}", column = 4)
     row += 1
-    label("Total", column = 1)
-    label(f"${total:.2f}", column = 2)
+    label("Total", column = 3)
+    label(f"${total:.2f}", column = 4)
     row += 1
 
     button("Back", lambda: orderPage(), width = 2, column = 2)
