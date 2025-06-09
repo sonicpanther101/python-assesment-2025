@@ -104,21 +104,6 @@ class itemWidget:
 
         originalColor = increaseButton.button.cget("fg_color")
 
-        def updateButtonState():
-            value = cartText[index].get()
-            if int(value) == 0:
-                decreaseButton.button.configure(state="disabled")
-                decreaseButton.button.configure(fg_color="grey")
-            elif int(value) == 5:
-                increaseButton.button.configure(state="disabled")
-                increaseButton.button.configure(fg_color="grey")
-            else:
-                increaseButton.button.configure(state="normal")
-                increaseButton.button.configure(fg_color=originalColor)
-
-                decreaseButton.button.configure(state="normal")
-                decreaseButton.button.configure(fg_color=originalColor)
-
         cartText[index].trace_add("write", lambda *args: updateButtonState())
 
         if index % itemColumns == 0:
@@ -127,6 +112,21 @@ class itemWidget:
         else:
             row += 1
             pass
+
+    def updateButtonState():
+        value = cartText[index].get()
+        if int(value) == 0:
+            decreaseButton.button.configure(state="disabled")
+            decreaseButton.button.configure(fg_color="grey")
+        elif int(value) == 5:
+            increaseButton.button.configure(state="disabled")
+            increaseButton.button.configure(fg_color="grey")
+        else:
+            increaseButton.button.configure(state="normal")
+            increaseButton.button.configure(fg_color=originalColor)
+
+            decreaseButton.button.configure(state="normal")
+            decreaseButton.button.configure(fg_color=originalColor)
 
 def clearPage():
     global cartText
@@ -152,7 +152,7 @@ def orderPage():
 
     row += 3
 
-    checkout = button("Checkout", lambda: checkoutPage(), width = 2, column = 2)
+    checkout = button("View Order", lambda: checkoutPage(), width = 2, column = 2)
 
     def updateCheckoutButtonState():
         for item in cart:
@@ -204,7 +204,7 @@ def checkoutPage():
     label("Subtotal", column = 3)
     label(f"${subtotal:.2f}", column = 4)
     row += 1
-    label("Tax", column = 3)
+    label("Tax (15%)", column = 3)
     label(f"${tax:.2f}", column = 4)
     row += 1
     label("Total", column = 3)
@@ -215,7 +215,7 @@ def checkoutPage():
 
     row += 1
 
-    button("Done", lambda: Done(), width = 2, column = 2)
+    button("Finalise", lambda: Done(), width = 2, column = 2)
 
 def Done():
     app.quit()
