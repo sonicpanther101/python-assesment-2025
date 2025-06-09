@@ -91,6 +91,21 @@ class label:
         self.label = ctk.CTkLabel(app, text=text)
         self.label.grid(column=column, row=row, columnspan=width)
 
+def updateButtonState():
+    value = cartText[index].get()
+    if int(value) == 0:
+        decreaseButton.button.configure(state="disabled")
+        decreaseButton.button.configure(fg_color="grey")
+    elif int(value) == 5:
+        increaseButton.button.configure(state="disabled")
+        increaseButton.button.configure(fg_color="grey")
+    else:
+        increaseButton.button.configure(state="normal")
+        increaseButton.button.configure(fg_color=originalColor)
+
+        decreaseButton.button.configure(state="normal")
+        decreaseButton.button.configure(fg_color=originalColor)
+
 class itemWidget:
     def __init__(self, item, index, itemColumns):
         global row
@@ -99,27 +114,10 @@ class itemWidget:
 
         itemDisplay(item, column = column+1)
         decreaseButton = button("-", lambda: removeFromCart(item), column = column)
-        decreaseButton.button.configure(state="disabled")
-        decreaseButton.button.configure(fg_color="grey")
         reactiveLabel(cartText[index], column = column + 1)
         increaseButton = button("+", lambda: addToCart(item), column = column + 2)
 
         originalColor = increaseButton.button.cget("fg_color")
-
-        def updateButtonState():
-            value = cartText[index].get()
-            if int(value) == 0:
-                decreaseButton.button.configure(state="disabled")
-                decreaseButton.button.configure(fg_color="grey")
-            elif int(value) == 5:
-                increaseButton.button.configure(state="disabled")
-                increaseButton.button.configure(fg_color="grey")
-            else:
-                increaseButton.button.configure(state="normal")
-                increaseButton.button.configure(fg_color=originalColor)
-
-                decreaseButton.button.configure(state="normal")
-                decreaseButton.button.configure(fg_color=originalColor)
 
         cartText[index].trace_add("write", lambda *args: updateButtonState())
 
@@ -130,16 +128,30 @@ class itemWidget:
             row += 1
             pass
 
+def updateCheckoutButtonState():
+    for item in cart:
+        if cart[item] > 0:
+            checkout.button.configure(state="normal")
+            checkout.button.configure(fg_color="green")
+            break
+        else:
+            checkout.button.configure(state="disabled")
+            checkout.button.configure(fg_color="grey")
+
 def clearPage():
+    for i in range(len(cartText)):
+        for trace_info in cartText[0].trace_info():
+            cartText[i].trace_remove(*trace_info)
+        cartText[i].trace_remove("write", updateButtonState)
+        cartText[i].trace_remove("write", updateCheckoutButtonState)
     for widget in app.winfo_children():
         widget.destroy()
 
 def orderPage():
-    global row
+    global row, traceIDs
     app.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
 
     clearPage()
-    updateVariables()
 
     row = 0
 
@@ -153,21 +165,10 @@ def orderPage():
     row += 3
 
     checkout = button("Checkout", lambda: checkoutPage(), width = 2, column = 2)
-    checkout.button.configure(state="disabled")
-    checkout.button.configure(fg_color="grey")
-
-    def updateCheckoutButtonState():
-        for item in cart:
-            if cart[item] > 0:
-                checkout.button.configure(state="normal")
-                checkout.button.configure(fg_color="green")
-                break
-            else:
-                checkout.button.configure(state="disabled")
-                checkout.button.configure(fg_color="grey")
 
     for i in range(len(cartText)):
         cartText[i].trace_add("write", lambda *args: updateCheckoutButtonState())
+    updateVariables()
 
 def checkoutPage():
     global row
@@ -210,6 +211,13 @@ def checkoutPage():
     row += 1
 
     button("Back", lambda: orderPage(), width = 2, column = 2)
+
+    row += 1
+
+    button("Done", lambda: Done(), width = 2, column = 2)
+
+def Done():
+    app.quit()
 
 
 orderPage()
