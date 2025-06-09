@@ -11,7 +11,6 @@ class item:
         self.price = price
         self.image = "images/" + image
 
-global cart
 cart = {
     "hamburger": 0,
     "cheeseburger": 0,
@@ -26,7 +25,6 @@ def updateVariables():
     for i, item in enumerate(cart):
         cartText[i].set(str(cart[item]))
     
-global ITEMS
 ITEMS = [
     item("hamburger", 5, "hamburger.jpg"),
     item("cheeseburger", 6, "cheeseburger.jpg"),
@@ -34,6 +32,14 @@ ITEMS = [
     item("french fries", 2.5, "french fries.jpg"),
     item("soft drink", 1.5, "soft drink.jpg"),
 ]
+
+ITEMS_INDEX = {
+    "hamburger": 0,
+    "cheeseburger": 1,
+    "veggie wrap": 2,
+    "french fries": 3,
+    "soft drink": 4
+}
 
 row = 0
 
@@ -80,10 +86,10 @@ class reactiveLabel:
         self.label.grid(column=column, row=row)
 
 class label:
-    def __init__(self, text, column = 1):
+    def __init__(self, text, width = 1, column = 1):
         global row
         self.label = ctk.CTkLabel(app, text=text)
-        self.label.grid(column=column, row=row)
+        self.label.grid(column=column, row=row, columnspan=width)
 
 class itemWidget:
     def __init__(self, item, index, itemColumns):
@@ -137,6 +143,10 @@ def orderPage():
 
     row = 0
 
+    label("Menu", width = 2, column = 2)
+
+    row += 1
+
     for item in ITEMS:
         itemWidget(item, ITEMS.index(item), 2)
 
@@ -163,11 +173,43 @@ def checkoutPage():
     global row
     row = 0
     clearPage()
+
+    label("Order Summary", width = 2, column = 1)
+
+    row += 1
+
+    label("Checkout", column = 0)
+    label("Item", column = 1)
+    label("Price", column = 2)
+    label("Quantity", column = 3)
+
+    row += 1
     
     for item in cart:
         if cart[item] > 0:
-            itemDisplay(ITEMS[ITEMS.index(item)], column = 0, flat = True)
-            label(cartText[ITEMS.index(item)], column = 4)
+            itemDisplay(ITEMS[ITEMS_INDEX[item]], column = 0, flat = True)
+            reactiveLabel(cartText[ITEMS_INDEX[item]], column = 3)
+
+            row += 1
+    
+    subtotal = 0
+    for item in cart:
+        subtotal += cart[item] * ITEMS[ITEMS_INDEX[item]].price
+    tax = subtotal * 0.15
+    total = subtotal + tax
+
+
+    label("Subtotal", column = 1)
+    label(f"${subtotal:.2f}", column = 2)
+    row += 1
+    label("Tax", column = 1)
+    label(f"${tax:.2f}", column = 2)
+    row += 1
+    label("Total", column = 1)
+    label(f"${total:.2f}", column = 2)
+    row += 1
+
+    button("Back", lambda: orderPage(), width = 2, column = 2)
 
 
 orderPage()
