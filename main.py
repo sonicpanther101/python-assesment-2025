@@ -5,12 +5,14 @@ app = ctk.CTk()
 app.geometry("900x600")
 app.title("Reseraunt App")
 
+# Represents a menu item with name, price and image path
 class item:
     def __init__(self, name, price, image):
         self.name = name
         self.price = price
         self.image = "images/" + image
 
+# Tracks quantities of items in shopping cart
 cart = {
     "hamburger": 0,
     "cheeseburger": 0,
@@ -19,12 +21,15 @@ cart = {
     "soft drink": 0
 }
 
+# String variables for dynamic cart quantity display
 cartText = [ctk.StringVar(value="0") for _ in range(len(cart))]
 
+# Updates all cart quantity displays
 def updateVariables():
     for i, item in enumerate(cart):
         cartText[i].set(str(cart[item]))
     
+# Available menu items
 ITEMS = [
     item("hamburger", 5, "hamburger.jpg"),
     item("cheeseburger", 6, "cheeseburger.jpg"),
@@ -33,6 +38,7 @@ ITEMS = [
     item("soft drink", 1.5, "soft drink.jpg"),
 ]
 
+# Maps item names to their index positions
 ITEMS_INDEX = {
     "hamburger": 0,
     "cheeseburger": 1,
@@ -41,20 +47,26 @@ ITEMS_INDEX = {
     "soft drink": 4
 }
 
+TAX_RATE = 0.15
+
+# Tracks current grid row in GUI
 row = 0
 
+# Adds item to cart (max 5)
 def addToCart(item):
     if cart[item.name] == 5:
         return
     cart[item.name] += 1
     updateVariables()
 
+# Removes item from cart (min 0)
 def removeFromCart(item):
     if cart[item.name] == 0:
         return
     cart[item.name] -= 1
     updateVariables()
 
+# Creates button widget with grid placement
 class button:
     def __init__(self, text, command, width = 1, column = 0):
         global row
@@ -63,6 +75,7 @@ class button:
         if column == 2 or width == 2:
             row += 1
 
+# Displays menu item information (image, name, price)
 class itemDisplay:
     def __init__(self, item, column = 1, flat = False):
         global row
@@ -78,6 +91,7 @@ class itemDisplay:
         if not flat:
             row += 1
 
+# Label that automatically updates with StringVar changes
 class reactiveLabel:
     def __init__(self, variable, column = 1):
         global row
@@ -85,12 +99,14 @@ class reactiveLabel:
         self.label = ctk.CTkLabel(app, textvariable=variable)
         self.label.grid(column=column, row=row)
 
+# Simple static text label
 class label:
     def __init__(self, text, width = 1, column = 1):
         global row
         self.label = ctk.CTkLabel(app, text=text)
         self.label.grid(column=column, row=row, columnspan=width)
 
+# Combined widget for item display with quantity controls
 class itemWidget:
     def __init__(self, item, index, itemColumns):
         global row
@@ -104,6 +120,22 @@ class itemWidget:
 
         originalColor = increaseButton.button.cget("fg_color")
 
+        # Updates button states based on quantity limits
+        def updateButtonState():
+            value = cartText[index].get()
+            if int(value) == 0:
+                decreaseButton.button.configure(state="disabled")
+                decreaseButton.button.configure(fg_color="grey")
+            elif int(value) == 5:
+                increaseButton.button.configure(state="disabled")
+                increaseButton.button.configure(fg_color="grey")
+            else:
+                increaseButton.button.configure(state="normal")
+                increaseButton.button.configure(fg_color=originalColor)
+
+                decreaseButton.button.configure(state="normal")
+                decreaseButton.button.configure(fg_color=originalColor)
+
         cartText[index].trace_add("write", lambda *args: updateButtonState())
 
         if index % itemColumns == 0:
@@ -113,21 +145,7 @@ class itemWidget:
             row += 1
             pass
 
-    def updateButtonState():
-        value = cartText[index].get()
-        if int(value) == 0:
-            decreaseButton.button.configure(state="disabled")
-            decreaseButton.button.configure(fg_color="grey")
-        elif int(value) == 5:
-            increaseButton.button.configure(state="disabled")
-            increaseButton.button.configure(fg_color="grey")
-        else:
-            increaseButton.button.configure(state="normal")
-            increaseButton.button.configure(fg_color=originalColor)
-
-            decreaseButton.button.configure(state="normal")
-            decreaseButton.button.configure(fg_color=originalColor)
-
+# Clears all widgets from current page
 def clearPage():
     global cartText
     cartText = [ctk.StringVar(value="0") for _ in range(len(cart))]
@@ -135,6 +153,7 @@ def clearPage():
     for widget in app.winfo_children():
         widget.destroy()
 
+# Main menu page with item selection
 def orderPage():
     global row, traceIDs
     app.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
@@ -154,6 +173,7 @@ def orderPage():
 
     checkout = button("View Order", lambda: checkoutPage(), width = 2, column = 2)
 
+    # Enables checkout button when items are in cart
     def updateCheckoutButtonState():
         for item in cart:
             if cart[item] > 0:
@@ -168,6 +188,7 @@ def orderPage():
         cartText[i].trace_add("write", lambda *args: updateCheckoutButtonState())
     updateVariables()
 
+# Displays order summary with pricing
 def checkoutPage():
     global row
     row = 0
@@ -185,6 +206,7 @@ def checkoutPage():
 
     row += 1
     
+    # Show only items with quantity > 0
     for item in cart:
         if cart[item] > 0:
             itemDisplay(ITEMS[ITEMS_INDEX[item]], column = 0, flat = True)
@@ -194,10 +216,11 @@ def checkoutPage():
 
             row += 1
     
+    # Calculate pricing
     subtotal = 0
     for item in cart:
         subtotal += cart[item] * ITEMS[ITEMS_INDEX[item]].price
-    tax = subtotal * 0.15
+    tax = subtotal * TAX_RATE
     total = subtotal + tax
 
 
@@ -217,10 +240,10 @@ def checkoutPage():
 
     button("Finalise", lambda: Done(), width = 2, column = 2)
 
+# Exits application
 def Done():
     app.quit()
 
-
-orderPage()
-
-app.mainloop()
+if __name__ == "__main__":
+    orderPage()
+    app.mainloop()
