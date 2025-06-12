@@ -116,7 +116,7 @@
 
 ##### **2. Code Organisation and Readability**
 - **Consistent Naming Conventions:**
-  - Adheres to the PEP 8 standard
+  - Adheres to the PEP 8 standard.
 - **Logical grouping of code:**
   - Imports > Constants > Classes > Functions > Main execution.
 - **Comments:**
@@ -133,15 +133,15 @@
 
 ##### **4. Comprehensive Testing**  
 - **Test Cases:**
-  | **Scenario**               | **Test**                          | **Result**                     |  
-  |----------------------------|-----------------------------------|--------------------------------|  
-  | **Normal Order**           | Add 2 hamburgers, 1 fries         | Correct subtotal/tax/total     |  
-  | **Max Quantity**           | Add 5 soft drinks > try 6th       | Blocked at 5                   |  
-  | **Empty Cart**             | Attempt checkout with no items    | Checkout button disabled       |  
-  | **Item Removal**           | Remove from 0 quantity            | Blocked with disabled button       |  
-  | **Navigation**             | Order > Checkout > Back > Order   | Pages reset correctly          |  
+  | **Scenario**               | **Test**                          | **Result**                     |       **Image**                   |
+  |----------------------------|-----------------------------------|--------------------------------|             ------------------------------|
+  | **Normal Order**           | Add 2 hamburgers, 1 fries         | Correct subtotal/tax/total     | ![alt text](image.png) |
+  | **Max Quantity**           | Add 5 soft drinks > try 6th       | Blocked at 5                   | ![alt text](image-1.png) |
+  | **Empty Cart**             | Attempt checkout with no items    | Checkout button disabled       | ![alt text](image-2.png) |
+  | **Item Removal**           | Remove from 0 quantity            | Blocked with disabled button       | ![alt text](image-3.png) |
+  | **Navigation**             | Order > Checkout > Order > Checkout   | Pages reset correctly          | To the order page![alt text](image-4.png) and back ![alt text](image-5.png) |
 - **Debugging:**
-  - Fixed initial state issues with `clearPage()` (resets cart/widgets).
+  - Fixed the initial widgets issues with `clearPage()` (resets cart/widgets).
   - Traced `StringVar` to sync cart quantities and UI.
 - **Output Clarity:**
   - Order summary formats prices (e.g., `$4.50`), aligns columns.
@@ -149,7 +149,7 @@
 ---
 
 ### Summary  
-The program **exceeds Achieve/Merit** and **meets Excellence** by:
+The program meets the excellence requirements by:
 1. **Structure:** Logical OOP design with clear separation of data/GUI.
 2. **Robustness:** Handles edge cases with button states and validation.
 3. **Flexibility:** Menu/tax rates configurable without core changes.
