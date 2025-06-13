@@ -1,5 +1,15 @@
 ### Assessment: Restaurant Meal Ordering System  
 
+#### **How to Run Code**
+##### **1. Download the Code**
+- Click on the `main.py` file from the files above
+- Click the download button ![alt text](image-6.png)
+##### **2. Install the Packages**
+- In the command line run `pip install customtkinter pillow`
+##### **3. Run the Code**
+- In the command line navigate to where the `main.py` file is
+- Run `python main.py`
+
 #### **Achieved Requirements**  
 
 ##### **1. Program Functionality**  
