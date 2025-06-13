@@ -136,10 +136,11 @@
   | **Scenario**               | **Test**                          | **Result**                     |       **Image**                   |
   |----------------------------|-----------------------------------|--------------------------------|             ------------------------------|
   | **Normal Order**           | Add 2 hamburgers, 1 fries         | Correct subtotal/tax/total     | ![alt text](image.png) |
-  | **Max Quantity**           | Add 5 soft drinks > try 6th       | Blocked at 5                   | ![alt text](image-1.png) |
-  | **Empty Cart**             | Attempt checkout with no items    | Checkout button disabled       | ![alt text](image-2.png) |
+  | **Max Quantity (Boundary case)**           | Add 5 soft drinks > try 6th       | Blocked at 5                   | ![alt text](image-1.png) |
+  | **Empty Cart (Boundary case)**             | Attempt checkout with no items    | Checkout button disabled       | ![alt text](image-2.png) |
   | **Item Removal**           | Remove from 0 quantity            | Blocked with disabled button       | ![alt text](image-3.png) |
   | **Navigation**             | Order > Checkout > Order > Checkout   | Pages reset correctly          | To the order page![alt text](image-4.png) and back ![alt text](image-5.png) |
+  | **Unexpected Inputs**             | Inputing an invalid input | It is impossible with the code I have written to input an invalid case. This means I have removed the possibility for user error. | Cannot have 6 of an item![alt text](image-1.png) |
 - **Debugging:**
   - Fixed the initial widgets issues with `clearPage()` (resets cart/widgets).
   - Traced `StringVar` to sync cart quantities and UI.
